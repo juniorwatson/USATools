@@ -31,7 +31,7 @@ public class UsaTools extends JFrame implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 	private JScrollPane jsp;
 	private MyUsaPanel mup;
-	double zoom = 1.0;
+	private double zoom = 1.0;
 	public UsaTools() throws Exception {
 		super("USA Tools");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -80,29 +80,32 @@ public class UsaTools extends JFrame implements ChangeListener {
 			g2d.dispose();
 		}
 		public void loadStates() throws Exception {
-			BufferedReader br = new BufferedReader(
-				new FileReader("usa2013.txt")
-			);
-			String s = "";
-			while ((s = br.readLine()) != null) {
-				Path2D p2d = new Path2D.Double();
-				String[] points = s.trim().split(" ");
-				for (int i = 0; i < points.length; i++) {
-					String[] xy = points[i].split(",");
-					Point2D pt2d = doAlbers(Double.parseDouble(xy[1]), Double.parseDouble(xy[0]));
-					switch (i) {
-						case 0:
-							p2d.moveTo(pt2d.getX(), pt2d.getY());
-							break;
-						default:
-							p2d.lineTo(pt2d.getX(), pt2d.getY());
-							break;
+			for (int fn = 1; fn < 53; fn++) {
+				if (fn == 32 || fn == 37 || fn == 52) continue;
+				BufferedReader br = new BufferedReader(
+					new FileReader("states13/" + fn + ".txt")
+				);
+				String s = "";
+				while ((s = br.readLine()) != null) {
+					Path2D p2d = new Path2D.Double();
+					String[] points = s.trim().split(" ");
+					for (int i = 0; i < points.length; i++) {
+						String[] xy = points[i].split(",");
+						Point2D pt2d = doAlbers(Double.parseDouble(xy[1]), Double.parseDouble(xy[0]));
+						switch (i) {
+							case 0:
+								p2d.moveTo(pt2d.getX(), pt2d.getY());
+								break;
+							default:
+								p2d.lineTo(pt2d.getX(), pt2d.getY());
+								break;
+						}
 					}
+					p2d.closePath();
+					this.shapes.add(p2d);
 				}
-				p2d.closePath();
-				this.shapes.add(p2d);
+				br.close();
 			}
-			br.close();
 		}
 		public Point2D doAlbers(double lat, double lon) { // doAlbers
 			double latitude = Math.toRadians(lat);
